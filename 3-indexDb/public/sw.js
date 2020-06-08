@@ -75,9 +75,10 @@
 
 (function () {
     importScripts('/src/js/idb.js');
+    importScripts('/src/js/db-helpers.js');
 
-    const CACHE_STATIC_NAME = "static-v28";
-    const CACHE_DYNAMIC_NAME = "dynamic-v28";
+    const CACHE_STATIC_NAME = "static-v30";
+    const CACHE_DYNAMIC_NAME = "dynamic-v30";
     const assetsToCache = [
         "/",
         "/index.html ",
@@ -96,11 +97,6 @@
         "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css",
     ];
 
-    const dbPromise = idb.open('feed-store', 1, (db) => {
-        if (!db.objectStoreNames.contains('posts')) {
-            db.createObjectStore('posts', { keyPath: 'id' })
-        }
-    });
 
     self.addEventListener("install", (event) => {
         /**
@@ -327,14 +323,15 @@
 
                     try {
                         response = await fetch(event.request);
+                        await clearAlldbData('posts')
                         const data = await (response.clone().json());
                         data.forEach(async element => {
                             if(element) {
-                                const db = await dbPromise;
-                                const tx = db.transaction('posts', 'readwrite');
-                                const store = tx.objectStore('posts');
-                                store.put(element);
-                                tx.complete;
+                                const status = await writeDbData('posts', element);
+                                if(status) {
+                                    console.log(status);
+                                }
+                                
                             }
                         }); 
 

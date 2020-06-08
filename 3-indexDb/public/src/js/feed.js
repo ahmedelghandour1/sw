@@ -52,13 +52,13 @@ async function onSaveBtnClick(event) {
 }
 
 function clearCard() {
-  while(sharedMomentsArea.hasChildNodes()) {
+  while (sharedMomentsArea.hasChildNodes()) {
     sharedMomentsArea.removeChild(sharedMomentsArea.lastChild)
   }
 }
 function updateCards(data) {
   data.forEach((el) => {
-    if(el) createCard(el);
+    if (el) createCard(el);
   })
 }
 
@@ -97,27 +97,20 @@ function createCard(data) {
 const url = 'https://pwagram-ffb2e.firebaseio.com/posts.json';
 let parsedFromNetwork = false;
 
-if ('caches' in window) {
-  caches.match(url)
-    .then(response => { 
-      console.log(response);
-
-      if (response) {
-        return response.json();
-      }
-    }).then(data => {
+if ('indexedDB' in window) {
+  readBbData('posts').then(data => {
+    if (!parsedFromNetwork) {
       console.log(data);
       
-      if(!parsedFromNetwork && data) {
-        clearCard();
-        updateCards(data);
-      }
-    })
+      clearCard();
+      updateCards(data);
+    }
+  })
 }
 
 
 fetch(url)
-  .then(function (res) {
+  .then(function (res) { 
     return res.json();
   })
   .then(function (data) {
@@ -131,8 +124,8 @@ fetch(url)
   })
 
 
-  /** =========== Fetching a post request============= */
+/** =========== Fetching a post request============= */
 
-  /**
-   * POST request can not be stored in the cache
-   */
+/**
+ * POST request can not be stored in the cache
+ */
