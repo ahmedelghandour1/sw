@@ -2,6 +2,9 @@ const dbPromise = idb.open('feed-store', 1, (upgradeDb) => {
     if (!upgradeDb.objectStoreNames.contains('posts')) {
         upgradeDb.createObjectStore('posts', { keyPath: 'id' })
     }
+    if (!upgradeDb.objectStoreNames.contains('sync-posts')) {
+        upgradeDb.createObjectStore('sync-posts', { keyPath: 'id' })
+    }
 });
 
 const accessDbWithStore = async (storeName, mode) => {

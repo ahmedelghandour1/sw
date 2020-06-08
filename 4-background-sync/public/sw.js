@@ -77,8 +77,8 @@
     importScripts('/src/js/idb.js');
     importScripts('/src/js/db-helpers.js');
 
-    const CACHE_STATIC_NAME = "static-v30";
-    const CACHE_DYNAMIC_NAME = "dynamic-v30";
+    const CACHE_STATIC_NAME = "static-v31";
+    const CACHE_DYNAMIC_NAME = "dynamic-v31";
     const assetsToCache = [
         "/",
         "/index.html ",
@@ -326,14 +326,14 @@
                         await clearAlldbData('posts')
                         const data = await (response.clone().json());
                         data.forEach(async element => {
-                            if(element) {
+                            if (element) {
                                 const status = await writeDbData('posts', element);
-                                if(status) {
+                                if (status) {
                                     console.log(status);
                                 }
-                                
+
                             }
-                        }); 
+                        });
 
                         return response;
 
@@ -370,5 +370,33 @@
             })()
         );
     });
+
+    /** ======= BACKGROUND SYNC ====== */
+    self.addEventListener('sync', (event) => {
+        console.log('[Service worker] Background syncing', event);
+        if (event.tag === 'sync-new-post') {
+            console.log('[Service worker] Background syncing new posts');
+            event.waitUntil(async function () {
+                const data = await readBbData('sync-posts');
+                data.forEach(async el => {
+                    const response = await fetch('https://pwagram-ffb2e.firebaseio.com/posts.json', {
+                        method: 'POST',
+                        body: JSON.stringify(el),
+                        headers: {
+                            'Content-Type': 'aplication/json',
+                            'Accept': 'aplication/json',
+                        }
+                    })
+                    console.log(response)
+                    if (response.ok) {
+                        clearSingledbData('sync-posts', el.id);
+                    }
+                })
+            }())
+        }
+    })
+
+
+
 })();
 
