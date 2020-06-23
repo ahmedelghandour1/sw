@@ -146,9 +146,9 @@
          */
         event.waitUntil(
             (async function () {
-                const keList = await caches.keys();
+                const keyList = await caches.keys();
                 return Promise.all(
-                    keList.map((key) => {
+                    keyList.map((key) => {
                         if (
                             key !== CACHE_STATIC_NAME &&
                             key !== CACHE_DYNAMIC_NAME
